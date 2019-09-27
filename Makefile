@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-g -Wall -pedantic
-LDFLAGS=-leXosip2 -losip2 -lrt -lm -lpthread -losipparser2 -lortp
+CFLAGS=-g -Wall -pedantic -fstack-protector -D_FORTIFY_SOURCE=2 -Wextra -Wno-unused-parameter -fPIE -pie
+LDFLAGS=-leXosip2 -losip2 -lrt -lm -lpthread -losipparser2 -lortp -zrelro -znow
 SOURCES=src/main.c src/sdp.c src/sip.c src/log.c src/law.c src/filter.c \
 		src/call.c src/spawn.c src/cmds.c src/config.c
 OBJECTS=$(SOURCES:.c=.o)

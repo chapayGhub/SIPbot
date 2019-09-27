@@ -78,7 +78,7 @@ void sip_update(void)
             break;
         case EXOSIP_CALL_INVITE:
             log_debug("SIP_UPDATE", "Received CALL_INVITE from %s",
-                      evt->request->from->displayname);
+                      evt->request->from->url->username);
 
             if (current_calls >= config_readint(CONFIG_MAXCALLS))
             {
@@ -106,7 +106,7 @@ void sip_update(void)
                 strlen(sdp_audio_conn->c_addr) > 0)
             {
 
-                ret = call_new(evt->request->from->displayname,
+                ret = call_new(evt->request->from->url->username,
                                sdp_audio_conn->c_addr,
                                atoi(sdp_audio_media->m_port), evt->cid,
                                evt->tid, evt->did);
@@ -126,14 +126,26 @@ void sip_update(void)
         case EXOSIP_CALL_ACK:
             log_debug("SIP_UPDATE", "Call %d got CALL_ACK, starting stream...",
                       evt->cid);
-            ret = call_set_status(evt->cid, CALL_ACTIVE);
+            ret = call_set_status(evt->cid, CALL_ACTIVE, 0);
             if (!ret)
                 sip_terminate_call(evt->cid, evt->did);
             break;
         case EXOSIP_CALL_CLOSED:
             log_debug("SIP_UPDATE", "Call %d closed", evt->cid);
-            call_set_status(evt->cid, CALL_CLOSED);
+            call_set_status(evt->cid, CALL_CLOSED, 0);
             break;
+	case EXOSIP_CALL_MESSAGE_NEW:
+	    if (evt->request && evt->request->content_type && !strcmp(evt->request->content_type->type, "application") &&
+			    !strcmp(evt->request->content_type->subtype, "dtmf-relay") && evt->request->bodies.node) {
+		osip_list_iterator_t iter;
+		osip_body_t *body = osip_list_get_first(&evt->request->bodies, &iter);
+		if (body) {
+		  log_debug("SIP_UPDATE", "DTMF-RELAY %s", body->body);
+		  char dtmf = body->body[7];
+                  call_set_status(evt->cid, CALL_ACTIVE, dtmf);
+		}
+	    }
+	    break;
         default:
             log_debug("SIP_UPDATE", "Got unknown event %d. Ignoring.",
                       evt->type);
@@ -305,8 +317,7 @@ int sip_answer_call(call_t* call)
         rtp_session_set_remote_addr(call->r_session, call->ip, call->port);
 
         rtp_session_signal_connect(call->r_session, "telephone-event",
-                                   (RtpCallback)recv_tev_cb,
-                                   (unsigned long)call);
+                                   (RtpCallback)recv_tev_cb, call);
 
         i = sdp_complete_200ok(ctx, call->did, answer, localip, 10500);
         if (i != 0)

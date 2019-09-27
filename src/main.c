@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     ortp_scheduler_init();
 
     rtp_profile_set_payload(&av_profile, 101, &payload_type_telephone_event);
-    ortp_set_log_level_mask(ORTP_MESSAGE | ORTP_WARNING | ORTP_ERROR);
+    ortp_set_log_level_mask("ortp", ORTP_MESSAGE | ORTP_WARNING | ORTP_ERROR);
 
     if (config_init(config_file) == -1)
     {

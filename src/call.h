@@ -93,6 +93,6 @@ call_t* call_free(call_t* call);
 int call_new(const char* display_name, const char* rtp_addr, 
         int rtp_port, int cid, int tid, int did);
 
-int call_set_status(int cid, int status);
+int call_set_status(int cid, int status, int signal);
 
 #endif

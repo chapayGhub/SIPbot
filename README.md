@@ -79,7 +79,7 @@ SIPbot communicates in a very simple way with the launched program, via stdin an
 
 - When a user press a number on his phone, `DTMF N\n` is sent to the program, where `N` is the key pressed.
 
-- When the call is closed, `FNSH\n` is sent to the program.
+- When the caller hangs up, `DISC\n` is sent to the program.
 
 #### Commands sent from your program to SIPbot
 

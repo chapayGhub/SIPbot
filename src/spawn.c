@@ -41,7 +41,7 @@ pid_t spawn(const char *cmd, spawn_t *out)
 
         dup2(rpipe[1], 1);
         dup2(wpipe[0], 0);
-        dup2(epipe[1], 2);
+	// TODO: dup2(epipe[1], 2);
 
         execl("/bin/bash", "bash", "-c", cmd, NULL);
         perror("execl");

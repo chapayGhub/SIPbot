@@ -471,14 +471,23 @@ int call_new(const char* display_name, const char* rtp_addr, int rtp_port,
  * @param cid eXosip Conversation ID
  * @param status New status
  */
-int call_set_status(int cid, int status)
+int call_set_status(int cid, int status, int signal)
 {
+    char buf[8];
     call_t* call = call_list;
     while (call != NULL)
     {
         if (call->cid == cid)
         {
             call->status = status;
+	    if (status == CALL_CLOSED) {
+              strcpy(buf, "DISC\n");
+	      write(call->exec.wfd, buf, strlen(buf));
+	    } else if (status == CALL_ACTIVE && signal) {
+              strcpy(buf, "DTMF  \n");
+	      buf[5] = signal;
+	      write(call->exec.wfd, buf, strlen(buf));
+	    }
             break;
         }
         call = call->next;
