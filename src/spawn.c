@@ -70,7 +70,7 @@ void sclose(spawn_t *cmd)
     close(cmd->efd);
 
     if (cmd->pid)
-        kill(cmd->pid, SIGKILL);
+        kill(cmd->pid, SIGHUP);
 
     while (cmd->list != NULL)
     {
